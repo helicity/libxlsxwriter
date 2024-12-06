@@ -636,6 +636,8 @@ lxw_chart *workbook_add_chart(lxw_workbook *workbook, uint8_t chart_type);
  * The `%workbook_close()` function closes a Workbook object, writes the Excel
  * file to disk, frees any memory allocated internally to the Workbook and
  * frees the object itself.
+ * A call to `%workbook_save()` followed by `%workbook_free()` has exactly the
+ * same effect as executing this function.
  *
  * @code
  *     workbook_close(workbook);
@@ -651,6 +653,66 @@ lxw_chart *workbook_add_chart(lxw_workbook *workbook, uint8_t chart_type);
  *
  */
 lxw_error workbook_close(lxw_workbook *workbook);
+
+/**
+ * @brief Save the Workbook object to XLSX file.
+ *
+ * @param workbook Pointer to a lxw_workbook instance.
+ *
+ * @return A #lxw_error.
+ *
+ * The `%workbook_save()` function writes the workbook object to Excel file.
+ * Since the workbook object still remains, you should manually call
+ * `%workbook_free()` to free workbook object later.
+ *
+ * @code
+ *     workbook_save(workbook);
+ * @endcode
+ *
+ * The `%workbook_save()` function returns any #lxw_error error codes
+ * encountered when save the workbook object to the Excel file. The error code can be
+ * returned from the program main or the calling function:
+ *
+ * @code
+ *     lxw_error error = workbook_save(workbook);
+ *     if (!error)
+ *         workbook_free(workbook);
+ * @endcode
+ *
+ * You can achieve the same effect by calling `%workbook_close()` instead of calling
+ * `%workbook_save()` and `%workbook_free()` sequentially.
+ *
+ */
+lxw_error workbook_save(lxw_workbook *workbook);
+
+/**
+ * @brief Free the Workbook object and internal memory.
+ *
+ * @param workbook Pointer to a lxw_workbook instance.
+ *
+ * @return A #lxw_error.
+ *
+ * The `%workbook_free()` function frees any memory allocated internally to the Workbook
+ * and frees the object itself. You can no longer perform any operations on the workbook
+ * after calling this function.
+ *
+ * @code
+ *     workbook_free(workbook);
+ * @endcode
+ *
+ * The `%workbook_free()` function always returns LXW_NO_ERROR.
+ *
+ * @code
+ *     lxw_error error = workbook_save(workbook);
+ *     if (!error)
+ *         workbook_free(workbook);
+ * @endcode
+ *
+ * You can achieve the same effect by calling `%workbook_close()` instead of calling
+ * `%workbook_save()` and `%workbook_free()` sequentially.
+ * 
+ */
+lxw_error workbook_free(lxw_workbook *workbook);
 
 /**
  * @brief Set the document properties such as Title, Author etc.

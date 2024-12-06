@@ -2187,8 +2187,76 @@ workbook_add_format(lxw_workbook *self)
  * Call finalization code and close file.
  */
 lxw_error
-workbook_close(lxw_workbook *self)
+workbook_close(lxw_workbook* self)
 {
+    lxw_error error = workbook_save(self);;
+    workbook_free(self);
+    return error;
+}
+
+
+/*
+ * Save Excel file.
+ */
+lxw_error
+workbook_save(lxw_workbook *self)
+{
+    /* Clean any temporal memory. */
+    struct lxw_image_md5 *image_md5;
+    struct lxw_image_md5 *next_image_md5;
+
+    if (self->image_md5s) {
+        for (image_md5 = RB_MIN(lxw_image_md5s, self->image_md5s);
+             image_md5; image_md5 = next_image_md5) {
+
+            next_image_md5 =
+                RB_NEXT(lxw_image_md5s, self->image_md5, image_md5);
+            RB_REMOVE(lxw_image_md5s, self->image_md5s, image_md5);
+            free(image_md5->md5);
+            free(image_md5);
+        }
+    }
+
+    if (self->embedded_image_md5s) {
+        for (image_md5 =
+             RB_MIN(lxw_image_md5s, self->embedded_image_md5s); image_md5;
+             image_md5 = next_image_md5) {
+
+            next_image_md5 =
+                RB_NEXT(lxw_image_md5s, self->embedded_image_md5s,
+                        image_md5);
+            RB_REMOVE(lxw_image_md5s, self->embedded_image_md5s,
+                      image_md5);
+            free(image_md5->md5);
+            free(image_md5);
+        }
+    }
+
+    if (self->header_image_md5s) {
+        for (image_md5 = RB_MIN(lxw_image_md5s, self->header_image_md5s);
+             image_md5; image_md5 = next_image_md5) {
+
+            next_image_md5 =
+                RB_NEXT(lxw_image_md5s, self->header_image_md5s,
+                        image_md5);
+            RB_REMOVE(lxw_image_md5s, self->header_image_md5s, image_md5);
+            free(image_md5->md5);
+            free(image_md5);
+        }
+    }
+
+    if (self->background_md5s) {
+        for (image_md5 = RB_MIN(lxw_image_md5s, self->background_md5s);
+             image_md5; image_md5 = next_image_md5) {
+
+            next_image_md5 =
+                RB_NEXT(lxw_image_md5s, self->background_md5s, image_md5);
+            RB_REMOVE(lxw_image_md5s, self->background_md5s, image_md5);
+            free(image_md5->md5);
+            free(image_md5);
+        }
+    }
+
     lxw_sheet *sheet = NULL;
     lxw_worksheet *worksheet = NULL;
     lxw_packager *packager = NULL;
@@ -2342,8 +2410,17 @@ workbook_close(lxw_workbook *self)
 
 mem_error:
     lxw_packager_free(packager);
-    lxw_workbook_free(self);
     return error;
+}
+
+/*
+ * Free the Workbook object and internal memory.
+ */
+lxw_error
+workbook_free(lxw_workbook* self)
+{
+    lxw_workbook_free(self);
+    return LXW_NO_ERROR;
 }
 
 /*
