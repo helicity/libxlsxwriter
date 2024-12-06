@@ -2187,7 +2187,7 @@ workbook_add_format(lxw_workbook *self)
  * Call finalization code and close file.
  */
 lxw_error
-workbook_close(lxw_workbook* self)
+workbook_close(lxw_workbook *self)
 {
     lxw_error error = workbook_save(self);;
     workbook_free(self);
